@@ -1,0 +1,13 @@
+services:
+  postgres:
+    image: postgres:latest
+    environment:
+      - TZ=America/Sao_Paulo
+      - PGTZ=America/Sao_Paulo
+      - POSTGRES_PASSWORD=1234
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "5432:5432"
