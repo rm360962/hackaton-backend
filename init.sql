@@ -27,6 +27,7 @@ CREATE TABLE IF NOT EXISTS AVALIACAO (
   NOME VARCHAR(100) NOT NULL,
   DESCRICAO VARCHAR(255),
   TIPO SMALLINT,
+  ATIVO BOOLEAN DEFAULT true,
   DATA_INCLUSAO DATE,
   DATA_ALTERACAO DATE,
   USUARIO_INCLUSAO VARCHAR(100),
@@ -39,6 +40,9 @@ CREATE TABLE IF NOT EXISTS PERGUNTA (
   DESCRICAO TEXT,
   PESO SMALLINT,
   ITENS JSONB, 
+  TIPO SMALLINT,
+  RESPOSTA_CORRETA SMALLINT,
+  ATIVO BOOLEAN DEFAULT true,
   DATA_INCLUSAO DATE,
   DATA_ALTERACAO DATE,
   USUARIO_INCLUSAO VARCHAR(100),
@@ -56,6 +60,7 @@ CREATE TABLE IF NOT EXISTS AVALIACAO_ALUNO (
   DATA_FIM DATE,
   SITUACAO SMALLINT, 
   NOTA SMALLINT,
+  ATIVO BOOLEAN DEFAULT true,
   DATA_INCLUSAO DATE,
   DATA_ALTERACAO DATE,
   USUARIO_INCLUSAO VARCHAR(100),
@@ -72,10 +77,10 @@ CREATE SEQUENCE AVALIACAO_SEQ_ID;
 CREATE SEQUENCE PERGUNTA_SEQ_ID;
 CREATE SEQUENCE AVALIACAO_ALUNO_SEQ_ID;
 
-INSERT INTO USUARIO_CATEGORIA(ID, NOME, PERMISSOES, USUARIO_INCLUSAO, DATA_INCLUSAO) VALUES (NEXTVAL('USUARIO_CATEGORIA_SEQ_ID'), 'Aluno', '["buscar_postagem"]', 'Sistema',NOW());
-INSERT INTO USUARIO_CATEGORIA(ID, NOME, PERMISSOES, USUARIO_INCLUSAO, DATA_INCLUSAO) VALUES (NEXTVAL('USUARIO_CATEGORIA_SEQ_ID'), 'Professor', '["buscar_postagem","cadastrar_postagem","editar_postagem","remover_postagem","buscar_usuario","cadastrar_usuario","editar_usuario","remover_usuario","buscar_categoria",
+INSERT INTO USUARIO_CATEGORIA(ID, NOME, PERMISSOES, USUARIO_INCLUSAO, DATA_INCLUSAO) VALUES (NEXTVAL('USUARIO_CATEGORIA_SEQ_ID'), 'Aluno', '["buscar_conteudo"]', 'Sistema',NOW());
+INSERT INTO USUARIO_CATEGORIA(ID, NOME, PERMISSOES, USUARIO_INCLUSAO, DATA_INCLUSAO) VALUES (NEXTVAL('USUARIO_CATEGORIA_SEQ_ID'), 'Professor', '["buscar_conteudo","cadastrar_conteudo","editar_conteudo","remover_conteudo","buscar_usuario","cadastrar_usuario","editar_usuario","remover_usuario","buscar_categoria",
   "cadastrar_categoria","editar_categoria","remover_categoria"]','Sistema', NOW());
-INSERT INTO USUARIO_CATEGORIA(ID, NOME, PERMISSOES, USUARIO_INCLUSAO, DATA_INCLUSAO) VALUES (NEXTVAL('USUARIO_CATEGORIA_SEQ_ID'), 'Administrador', '["buscar_postagem","cadastrar_postagem","editar_postagem","remover_postagem","buscar_usuario","cadastrar_usuario","editar_usuario","remover_usuario","buscar_categoria",
+INSERT INTO USUARIO_CATEGORIA(ID, NOME, PERMISSOES, USUARIO_INCLUSAO, DATA_INCLUSAO) VALUES (NEXTVAL('USUARIO_CATEGORIA_SEQ_ID'), 'Administrador', '["buscar_conteudo","cadastrar_conteudo","editar_conteudo","remover_conteudo","buscar_usuario","cadastrar_usuario","editar_usuario","remover_usuario","buscar_categoria",
   "cadastrar_categoria","editar_categoria","remover_categoria"]','Sistema', NOW());
 
 INSERT INTO USUARIO

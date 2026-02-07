@@ -8,4 +8,10 @@ router.get('', (req, res) => {
     });
 });
 
+router.get('/teste', (req, res) => {
+    res.status(200).send({
+        mensagem: "Bem vindo a api"
+    });
+});
+
 export default router;
