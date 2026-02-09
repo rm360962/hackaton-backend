@@ -23,7 +23,7 @@ export class AvaliacaoRepository {
                     'id', P.ID,
                     'descricao', P.DESCRICAO,
                     'itens', P.ITENS,
-                    'peso', P.PESO,
+                    'valor', P.PESO,
                     'tipo', json_build_object(
                         'id', P.TIPO,
                         'nome', CASE P.TIPO WHEN 0 THEN 'Multipla escolha' WHEN 1 THEN 'Descritiva' ELSE 'Desconhecido' END
@@ -274,7 +274,7 @@ export class AvaliacaoRepository {
         const { rows: resultado } = await poolConexoes.query(sql, [
             pergunta.avaliacaoId,
             pergunta.descricao,
-            pergunta.peso,
+            pergunta.valor,
             pergunta.itens ? JSON.stringify(pergunta.itens) : null,
             pergunta.tipo,
             pergunta.respostaCorreta || null,
