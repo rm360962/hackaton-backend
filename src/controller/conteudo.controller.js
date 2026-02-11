@@ -40,7 +40,7 @@ export class ConteudoController {
 		conteudo.usuarioId = req.headers.usuarioEvento.id;
         conteudo.usuarioInclusao = req.headers.usuarioEvento.login;
 
-        const { status, resposta } = await this.conteudoService.cadastrar(postagem);
+        const { status, resposta } = await this.conteudoService.cadastrar(conteudo);
         return res.status(status).send(resposta);
     };
 
@@ -56,13 +56,14 @@ export class ConteudoController {
         const conteudo = req.body;
         conteudo.id = parseInt(req.params.id, 10);
         conteudo.usuarioAlteracao = req.headers.usuarioEvento.login;
-        const { status, resposta } = await this.conteudoService.editar(postagem);
+        const { status, resposta } = await this.conteudoService.editar(conteudo);
         return res.status(status).send(resposta);
     };
 
     removerConteudo = async (req, res) => {
         const id = parseInt(req.params.id, 10);
-        const { status, resposta } = await this.conteudoService.remover(id);
+        const usuario = req.headers.usuarioEvento.login;;
+        const { status, resposta } = await this.conteudoService.remover(id, usuario);
         return res.status(status).send(resposta);
     };
 };

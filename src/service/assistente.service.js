@@ -17,6 +17,12 @@ export class AssistenteService {
         mensagem: 'Erro ao gerar avaliacao'
     };
 
+    exemploConteudo = {
+        titulo: 'Matematica básica',
+        descricao: 'Matematica básica trabalhando com soma e subtração',
+        texto: '# Matematica basica\n\nHoje veremos dois tipos de operação:\n\n* Adição\n* Subtração\n'
+    };
+
     geminiRepository = new GeminiRepository();
     avaliacaoRepository = new AvaliacaoRepository();
 
@@ -62,7 +68,7 @@ export class AssistenteService {
                 let alternativas = null;
                 let tipo = 1;
 
-                if(pergunta.itens && pergunta.itens.length > 0) {
+                if (pergunta.itens && pergunta.itens.length > 0) {
                     tipo = 0
                     respostaCorreta = pergunta.itens.findIndex(alternativa => alternativa === pergunta.respostaCorreta);
                     alternativas = pergunta.itens.join(',');
@@ -78,7 +84,7 @@ export class AssistenteService {
                     respostaCorretaLabel: pergunta.respostaCorreta
                 };
             });
-            
+
             return {
                 status: 200,
                 resposta: {
@@ -96,4 +102,56 @@ export class AssistenteService {
             };
         }
     };
+
+    gerarConteudo = async (dados) => {
+        const { assunto } = dados;
+        let prompt = `Objetivo: Gerar conteúdo de alta qualidade para estudantes. `;
+        prompt += `Instruções de Conteúdo: `
+        prompt += `* Proibido: Não inclua nenhuma imagem ou placeholder de imagem. `
+        prompt += `* Links: Insira links de sites brasileiros (.com.br ou .edu.br) que sejam referências reais sobre o tema. `
+        prompt += `* Formatação: Use Markdown para o corpo do texto. Use espaçamento simples entre parágrafos (evite grandes blocos de espaços em branco). `
+        prompt += `* Estrutura: O texto deve ser direto e focado no aprendizado. Não é necessário incluir o título dentro da string de texto. `
+        prompt += `Assunto: "${assunto}". `;
+        prompt += `Regras de Saída (JSON): Retorne estritamente um objeto JSON, sem textos explicativos antes ou depois.`;
+        prompt += `Estrutura da saída: `;
+        prompt += `* titulo: Título do conteúdo. `
+        prompt += `* descriçao: Uma breve descrição sobre o conteúdo com no máximo 255 caracteres. `
+        prompt += `* texto: Texto em markdown contendo o conteúdo buscado. `
+        prompt += `Caso de Erro: Se o assunto for incoerente ou impossível de buscar, retorne apenas: {"mensagem": "Erro"}.`;
+        prompt += `Exemplo de Formatação Esperada: ${JSON.stringify(this.exemploConteudo)}`
+
+        const respostaGemini = await this.geminiRepository.enviarPrompt(prompt);
+
+        if (!respostaGemini) {
+            return {
+                status: 500,
+                resposta: {
+                    mensagem: 'Erro ao se comunicar com o gemini'
+                },
+            };
+        }
+
+        if (respostaGemini.mensagem) {
+            return {
+                status: 400,
+                resposta: {
+                    mensagem: 'Não foi possivel gerar conteúdo sobre esse assunto'
+                },
+            };
+        }
+
+        if(!respostaGemini.titulo || !respostaGemini.descricao || !respostaGemini.texto) {
+            return {
+                status: 400,
+                resposta: {
+                    mensagem: 'Não foi possivel gerar o conteúdo via assitente'
+                },
+            };
+        }
+
+        return {
+            status: 200,
+            resposta: respostaGemini
+        };
+    }
 };

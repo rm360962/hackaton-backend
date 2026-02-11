@@ -72,7 +72,7 @@ export class ConteudoService {
 
     editar = async (conteudo) => {
         try {
-			const { possuiResultado: conteudoEncontrado } = this.conteudoRepository.buscarConteudos({
+			const { possuiResultado: conteudoEncontrado } = await this.conteudoRepository.buscarConteudos({
                 id: conteudo.id
             });
 
@@ -121,22 +121,26 @@ export class ConteudoService {
         }
     };
 
-    remover = async (id) => {
+    remover = async (id, usuario) => {
         try {
-			const { possuiResultado: conteudoEncontrado } = this.conteudoRepository.buscarConteudos({
-                id: conteudo.id
+			const { possuiResultado: conteudoEncontrado } = await this.conteudoRepository.buscarConteudos({
+                id: id
             });
 
 			if (!conteudoEncontrado) {
 				return {
 					status: 400,
 					resposta: {
-						mensagem: `Conteúdo ${conteudo.id} não foi encontrada`,
+						mensagem: `Conteúdo ${id} não foi encontrada`,
 					},
 				};
 			}
 
-            const conteudoRemovido = await this.conteudoRepository.removerConteudo(id);
+            const conteudoRemovido = await this.conteudoRepository.editarConteudo({
+                id,
+                usuarioAlteracao: usuario,
+                ativo: false,
+            });
 
             return {
                 status: conteudoRemovido ? 200 : 500,

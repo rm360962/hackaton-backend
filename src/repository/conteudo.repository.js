@@ -8,6 +8,7 @@ export class ConteudoRepository {
             c.id AS "id",
             c.titulo AS "titulo",
             c.descricao AS "descricao",
+            c.texto as "texto",
             c.usuario_id AS "usuarioId",
 			u.nome as "nomeUsuario",
             TO_CHAR(c.data_inclusao, 'DD/MM/YYYY hh24:mi:ss') AS "dataInclusao",
@@ -17,6 +18,7 @@ export class ConteudoRepository {
         FROM conteudo c
         INNER JOIN usuario u ON u.id = c.usuario_id
         WHERE 1=1
+            AND C.ATIVO = true
         `;
 
         let indiceParametro = 1;
@@ -61,6 +63,7 @@ export class ConteudoRepository {
 				id: item.id,
 				titulo: item.titulo,
 				descricao: item.descricao,
+                texto: item.texto,
 				usuario: {
 					id: item.usuarioId,
 					nome: item.nomeUsuario,
@@ -83,20 +86,23 @@ export class ConteudoRepository {
             ID,
             TITULO,
             DESCRICAO,
+            TEXTO,
             USUARIO_ID,
             USUARIO_INCLUSAO
         ) VALUES (
             NEXTVAL('CONTEUDO_SEQ_ID'),
             $1, 
             $2,
-            $3, 
-            $4  
+            $3,
+            $4,
+            $5 
         ) RETURNING ID;
         `;
 
         const { rows: resultado } = await poolConexoes.query(sql, [
             conteudo.titulo,
             conteudo.descricao,
+            conteudo.texto,
             conteudo.usuarioId,
             conteudo.usuarioInclusao,
         ]);
@@ -111,28 +117,22 @@ export class ConteudoRepository {
             TITULO = COALESCE($1, TITULO),
             DESCRICAO = COALESCE($2, DESCRICAO),
             USUARIO_ID = COALESCE($3, USUARIO_ID),
+            TEXTO = COALESCE($4, TEXTO),
+            ATIVO = COALESCE($5, ATIVO),
             DATA_ALTERACAO = NOW(),
-            USUARIO_ALTERACAO = $4
-        WHERE ID = $5;
+            USUARIO_ALTERACAO = $6
+        WHERE ID = $7;
         `;
 
         const { rowCount } = await poolConexoes.query(sql, [
             conteudo.titulo ?? null,
             conteudo.descricao ?? null,
             conteudo.usuarioId ?? null,
+            conteudo.texto ?? null,
+            conteudo.ativo != null ? conteudo.ativo : null,
 			conteudo.usuarioAlteracao,
             conteudo.id
         ]);
-
-        return rowCount > 0;
-    };
-
-    removerConteudo = async (id) => {
-        const sql = `
-            DELETE FROM CONTEUDO WHERE ID = $1
-        `;
-
-        const { rowCount } = await poolConexoes.query(sql, [id]);
 
         return rowCount > 0;
     };
