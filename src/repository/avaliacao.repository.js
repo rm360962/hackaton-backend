@@ -44,21 +44,21 @@ export class AvaliacaoRepository {
         let indiceParametro = 1;
         const valores = [];
 
-        if(id) {
+        if (id) {
             sql += `AND A.ID = $${indiceParametro++} `;
             valores.push(id);
         } else {
-            if(nome) {
+            if (nome) {
                 sql += `AND A.NOME LIKE '%$${indiceParametro++}%' `
                 valores.push(nome);
             }
 
-            if(tipo) {
+            if (tipo) {
                 sql += `AND A.TIPO = $${indiceParametro++} `;
                 valores.push(tipo);
             }
 
-            if(ativo) {
+            if (ativo) {
                 sql += `AND A.ATIVO = $${indiceParametro++} `;
                 valores.push(ativo);
             }
@@ -66,63 +66,12 @@ export class AvaliacaoRepository {
 
         sql += 'GROUP BY A.ID, A.NOME, A.DESCRICAO ';
         sql += 'ORDER BY A.ID DESC';
-        
+
         const { rows: resultado } = await poolConexoes.query(sql, valores);
-        
+
         return {
             possuiResultado: resultado.length > 0,
             dados: resultado,
-        };
-    };
-
-    buscarAvaliacoesUsuario = async (filtros) => {
-        const sql = `
-        SELECT 
-            AU.ID           "id",
-            AU.DATA_LIMITE  "dataLimite",
-            AU.DATA_INICIO  "dataInicio",
-            AU.DATA_FIM     "dataFim",
-            AU.SITUACAO     "situacao",
-            U.ID            "usuarioId",
-            U.NOME          "nomeUsuario",
-            A.ID            "avaliacaoId",
-            A.NOME          "nomeAvaliacao",
-            TO_CHAR(AU.DATA_INCLUSAO, 'DD/MM/YYYY HH24:MM:SS') AS "dataInclusao",
-            AU.USUARIO_INCLUSAO AS "usuarioInclusao",
-            TO_CHAR(AU.DATA_ALTERACAO, 'DD/MM/YYYY HH24:MI:SS') AS "dataAlteracao",
-            AU.USUARIO_ALTERACAO AS "usuarioAlteracao"
-        FROM AVALIACAO_USUARIO AU
-        INNER JOIN AVALIACAO A ON (A.ID = AU.AVALIACAO_ID) 
-        INNER JOIN USUARIO U ON (U.ID = AU.USUARIO_ID)
-        WHERE 1=1
-        `;
-
-        const { rows: resultado } = await poolConexoes.query(sql);
-        const resultadoNormalizado = resultado.map((item) => {
-            return {
-                id: item.id,
-                dataLimite: item.dataLimite,
-                dataInicio: item.dataInicio,
-                dataFim: item.dataFim,
-                situacao: item.situacao,
-                usuario: {
-                    id: item.usuarioId,
-                    nome: item.nomeUsuario,
-                },
-                avaliacao: {
-                    id: item.avaliacao,
-                    nome: item.nomeAvaliacao,
-                },
-                usuarioInclusao: item.usuarioInclusao,
-                usuarioAlteracao: item.usuarioAlteracao,
-                dataInclusao: item.dataInclusao,
-                dataAlteracao: item.dataAlteracao
-            };
-        });
-
-        return {
-            possuiResultado: resultadoNormalizado.length > 0,
-            dados: resultadoNormalizado,
         };
     };
 
@@ -193,31 +142,6 @@ export class AvaliacaoRepository {
         return resultado[0].id;
     };
 
-    editarAvaliacaoUsuario = async (avaliacaoUsuario) => {
-        const sql = `
-        UPDATE AVALIACAO_ALUNO
-        SET 
-            DATA_INICIO = COALESCE($3, DATA_INICIO),
-            DATA_FIM = COALESCE($4, DATA_FIM),
-            SITUACAO = COALESCE($5, SITUACAO),
-            NOTA = COALESCE($6, NOTA),
-            ATIVO = COALESCE($7, ATIVO),
-            DATA_ALTERACAO = CURRENT_DATE,
-            USUARIO_ALTERACAO = $1
-        WHERE ID = $2
-        `;
-
-        const { rowCount } = await poolConexoes.query(sql, [
-            avaliacaoUsuario.usuario,
-            avaliacaoUsuario.id,
-            avaliacaoUsuario.dataInicio || null,
-            avaliacaoUsuario.dataFim || null,
-            avaliacaoUsuario.situacao || null
-        ]);
-
-        return rowCount > 0;
-    };
-
     editarAvaliacao = async (avaliacao) => {
 
         const sql = `
@@ -243,8 +167,7 @@ export class AvaliacaoRepository {
 
         return rowCount > 0;
     };
-
-
+    
     cadastrarPergunta = async (pergunta) => {
         console.log('[AVALIACAO REPOSITORY] Cadastrando pergunta:', JSON.stringify(pergunta));
         const sql = `
@@ -291,7 +214,7 @@ export class AvaliacaoRepository {
             ATIVO = false
         WHERE ID = $1
         `;
-        
+
         const { rowCount } = await poolConexoes.query(sql, [
             id
         ]);

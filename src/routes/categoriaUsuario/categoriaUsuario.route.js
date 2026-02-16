@@ -7,7 +7,7 @@ const router = express.Router();
 const controller = new CategoriaUsuarioController();
 
 router.get(
-	'/users/categories',
+	'/usuarios/categorias',
 	validarToken,
 	validarPermissao('buscar_categoria'),
 	validarBusca(),
@@ -15,7 +15,7 @@ router.get(
 );
 
 router.post(
-	'/users/categories',
+	'/usuarios/categorias',
 	validarToken,
 	validarPermissao('cadastrar_categoria'),
 	validarCadastro(),
@@ -23,7 +23,7 @@ router.post(
 );
 
 router.put(
-	'/users/categories/:id',
+	'/usuarios/categorias/:id',
 	validarToken,
 	validarPermissao('editar_categoria'),
 	validarEdicao(),
@@ -31,7 +31,7 @@ router.put(
 );
 
 router.delete(
-	'/users/categories/:id',
+	'/usuarios/categorias/:id',
 	validarToken,
 	validarPermissao('remover_categoria'),
 	controller.removerCategoriaUsuario

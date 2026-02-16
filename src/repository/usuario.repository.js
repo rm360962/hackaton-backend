@@ -109,6 +109,25 @@ export class UsuarioRepository {
         };
     };
 
+    buscarAlunosIdNome = async () => {
+        let sql = `
+        SELECT 
+            u.id AS "id",
+            u.nome AS "nome"
+        FROM usuario u
+        WHERE 1=1
+            AND u.categoria_id = 1
+            AND u.ativo = true
+        `;
+
+        const { rows: resultado } = await poolConexoes.query(sql);
+
+        return {
+            possuiResultado: resultado.length > 0,
+            resultado: resultado
+        };
+    };
+
     cadastrarUsuario = async (usuario) => {
         console.log('[USUARIO REPOSITORY] Cadastrando usuario:', JSON.stringify(usuario));
         const sql = `

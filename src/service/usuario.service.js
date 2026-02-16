@@ -49,6 +49,27 @@ export class UsuarioService {
             };
         }
     };
+
+    buscarIdNomeAluno = async () => {
+        try {
+            const { resultado: usuarios } = await this.usuarioRepository.buscarAlunosIdNome();
+
+            return {
+                status: 200,
+                resposta: usuarios
+            };
+        } catch (erro) {
+            console.log('[USUARIO SERVICE] Erro ao buscar os alunos:', erro);
+
+            return {
+                status: 500,
+                resposta: {
+                    mensagem: 'Erro ao buscar os usuario(s)'
+                },
+            };
+        }
+    };
+
     cadastrar = async (usuario) => {
         try {
             const { possuiResultado: categoriaUsuarioEncontrada } =

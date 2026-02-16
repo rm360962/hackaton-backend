@@ -27,6 +27,11 @@ export class UsuarioController {
         return res.status(status).send(resposta);
     };
 
+    buscarAlunos = async (req, res) => {
+        const { status, resposta } = await this.usuarioService.buscarIdNomeAluno();
+        return res.status(status).send(resposta);
+    };
+
     cadastrarUsuario = async (req, res) => {
         const errosRequisicao = validationResult(req).formatWith(mascaraValidacao);
 

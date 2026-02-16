@@ -6,7 +6,7 @@ const router = express.Router();
 const controller = new UsuarioController();
 
 router.get(
-    '/users', 
+    '/usuarios', 
 	validarToken,
 	validarPermissao('buscar_usuario'),
     validarBusca(), 
@@ -14,18 +14,24 @@ router.get(
 );
 
 router.get(
-    '/users/teachers',
+    '/usuarios/professores',
     validarToken,
     controller.buscarProfessores,
 );
 
 router.get(
-    '/users/login', 
+    '/usuarios/alunos',
+    validarToken,
+    controller.buscarAlunos,
+);
+
+router.get(
+    '/usuarios/login', 
     controller.logarUsuario
 );
 
 router.post(
-    '/users', 
+    '/usuarios', 
 	validarToken,
 	validarPermissao('cadastrar_usuario'),
     validarCadastro(), 
@@ -33,14 +39,14 @@ router.post(
 );
 
 router.put(
-    '/users/:id', 
+    '/usuarios/:id', 
 	validarToken,
 	validarPermissao('editar_usuario'),
     validarEdicao(), 
     controller.editarUsuario
 );
 
-router.delete('/users/:id', 
+router.delete('/usuarios/:id', 
 	validarToken,
 	validarPermissao('remover_usuario'), 
     controller.removerUsuario
