@@ -129,10 +129,18 @@ export class AvaliacaoController {
         return res.status(status).send(resposta);
     };
 
-    removerAvaliacao = async (req, res) => {
+    removerAvaliacaoAluno = async (req, res) => {
         const id = parseInt(req.params.id, 10);
         const usuario = req.headers.usuarioEvento.login;
         const { status, resposta } = await this.avaliacaoAlunoService.remover(id, usuario);
+        return res.status(status).send(resposta);
+    };
+
+    finalizarAvaliacaoAluno = async (req, res) => {
+        const usuario = req.headers.usuarioEvento.login;
+        const avaliacaoAluno = req.body;
+        avaliacaoAluno.usuarioAlteracao = usuario;
+        const { status, resposta } = await this.avaliacaoAlunoService.finalizar(avaliacaoAluno);
         return res.status(status).send(resposta);
     };
 }

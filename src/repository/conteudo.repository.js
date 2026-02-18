@@ -27,6 +27,9 @@ export class ConteudoRepository {
         if (filtros.id) {
             sql += `AND c.id = $${indiceParametro++}`;
             valores.push(filtros.id);
+        } else if (filtros.ids) {
+            sql += `AND c.id = any($${indiceParametro++})`;
+            valores.push(filtros.ids);
         } else {
             if (filtros.titulo) {
                 sql += ` AND c.titulo ILIKE $${indiceParametro++}`;
@@ -49,7 +52,7 @@ export class ConteudoRepository {
             } else if (!filtros.dataInclusaoInicio && filtros.dataInclusaoFim) {
                 sql += ` AND date(c.data_inclusao) <= $${indiceParametro}`;
                 valores.push(filtros.dataInclusaoFim);
-            } else if(filtros.dataInclusaoInicio && filtros.dataInclusaoFim) {
+            } else if (filtros.dataInclusaoInicio && filtros.dataInclusaoFim) {
                 sql += ` AND date(c.data_inclusao) BETWEEN $${indiceParametro} AND $${indiceParametro + 1}`;
                 valores.push(filtros.dataInclusaoInicio);
                 valores.push(filtros.dataInclusaoFim);
@@ -58,25 +61,25 @@ export class ConteudoRepository {
 
         const { rows: resultado } = await poolConexoes.query(sql, valores);
 
-		const resultadoNormalizado = resultado.map((item) => {
-			return {
-				id: item.id,
-				titulo: item.titulo,
-				descricao: item.descricao,
+        const resultadoNormalizado = resultado.map((item) => {
+            return {
+                id: item.id,
+                titulo: item.titulo,
+                descricao: item.descricao,
                 texto: item.texto,
-				usuario: {
-					id: item.usuarioId,
-					nome: item.nomeUsuario,
-				},
-				dataInclusao: item.dataInclusao,
-				dataAlteracao: item.dataAlteracao,
-				usuarioInclusao: item.usuarioInclusao,
-				usuarioAlteracao: item.usuarioAlteracao,
-			};
-		});
-		return {
-			possuiResultado: resultadoNormalizado.length > 0,
-			resultado: filtros.id && resultadoNormalizado.length > 0 ? resultadoNormalizado[0] : resultadoNormalizado,
+                usuario: {
+                    id: item.usuarioId,
+                    nome: item.nomeUsuario,
+                },
+                dataInclusao: item.dataInclusao,
+                dataAlteracao: item.dataAlteracao,
+                usuarioInclusao: item.usuarioInclusao,
+                usuarioAlteracao: item.usuarioAlteracao,
+            };
+        });
+        return {
+            possuiResultado: resultadoNormalizado.length > 0,
+            resultado: filtros.id && resultadoNormalizado.length > 0 ? resultadoNormalizado[0] : resultadoNormalizado,
         };
     };
 
@@ -130,7 +133,7 @@ export class ConteudoRepository {
             conteudo.usuarioId ?? null,
             conteudo.texto ?? null,
             conteudo.ativo != null ? conteudo.ativo : null,
-			conteudo.usuarioAlteracao,
+            conteudo.usuarioAlteracao,
             conteudo.id
         ]);
 

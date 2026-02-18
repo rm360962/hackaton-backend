@@ -1,7 +1,9 @@
+import { AvaliacaoRepository } from "../repository/avaliacao.repository.js";
 import { AvaliacaoAlunoRepository } from "../repository/avaliacaoAluno.repository.js";
 
 export class AvaliacaoAlunoService {
     avaliacaoAlunoRepository = new AvaliacaoAlunoRepository();
+    avaliacaoRepository = new AvaliacaoRepository();
 
     buscar = async (filtros) => {
         try {
@@ -55,7 +57,7 @@ export class AvaliacaoAlunoService {
                 const { possuiResultado: jaCadastrada } = await this.avaliacaoAlunoRepository.buscarAvaliacoesAluno({
                     avaliacaoId: avaliacaoAluno.avaliacaoId,
                     usuarioId: usuarioId,
-                    situacao: 0
+                    situacaoId: 0
                 });
 
                 if (jaCadastrada) {
@@ -145,7 +147,7 @@ export class AvaliacaoAlunoService {
             const { possuiResultado: encontrouRegistro } = await this.avaliacaoAlunoRepository.buscarAvaliacoesAluno({
                 id: avaliacaoUsuario.id,
                 ativo: true
-            });;
+            });
 
             if (!encontrouRegistro) {
                 return {
@@ -174,6 +176,73 @@ export class AvaliacaoAlunoService {
                 status: 500,
                 mensagem: 'Erro durante a remoção da avaliação do aluno',
             };
+        }
+    };
+
+    finalizar = async (avaliacaoAluno) => {
+        const { possuiResultado: encontrouRegistro } = await this.avaliacaoAlunoRepository.buscarAvaliacoesAluno({
+            id: avaliacaoAluno.id
+        });
+
+        if(!encontrouRegistro) {
+            return {
+                status: 400,
+                resposta: {
+                    mensagem: `Avaliação aluno ${avaliacaoAluno.id} não foi encontrada`,
+                }
+            }
+        }
+
+        const { dados: avaliacoes } = await this.avaliacaoRepository.buscarAvaliacoes({
+            id: avaliacaoAluno.avaliacaoId,
+        });
+        
+        const avaliacao = avaliacoes[0];
+        let notaFinal = 0;
+        let perguntasCorrigidas = 0;
+        
+        for(const pergunta of avaliacao.perguntas) {
+            const resposta = avaliacaoAluno.respostas.find(resposta => resposta.perguntaId === pergunta.id);
+
+            if(pergunta.tipo.id === 0) {
+                notaFinal += pergunta.respostaCorreta === resposta.valor ? pergunta.valor : 0;
+                perguntasCorrigidas++;
+                continue;
+            }  
+
+            if(pergunta.tipo.id === 1 && resposta.correta) {
+                notaFinal += pergunta.valor;
+            }
+
+            if(resposta.correta != null) {
+                perguntasCorrigidas++;
+            }
+        }
+
+        const podeFinalizar = 
+            avaliacao.perguntas.filter(pergunta => pergunta.tipo.id === 1).length === 0 ||
+            perguntasCorrigidas === avaliacao.perguntas.length
+            ;
+
+        const atualizacao = {
+            id: avaliacao.id,
+            usuario: avaliacaoAluno.usuarioAlteracao,
+            dataExecucao: true,
+        };
+
+        if(podeFinalizar) {
+            atualizacao.situacaoId = 3;
+            atualizacao.nota = notaFinal;
+        } else {
+            atualizacao.situacaoId = 2;
+            atualizacao.respostas = JSON.stringify(avaliacaoAluno.respostas);
+        }
+
+        await this.avaliacaoAlunoRepository.editarAvaliacaoAluno(atualizacao);
+
+        return {
+            status: 200,
+            mensagem: 'Avaliação finalizada com sucesso'
         }
     };
 }

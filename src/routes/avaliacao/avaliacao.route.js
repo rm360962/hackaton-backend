@@ -29,6 +29,12 @@ router.put(
     controller.editarAvaliacaoAluno
 );
 
+router.post(
+    '/avaliacoes/aluno/enviar-resposta',
+    validarToken,
+    controller.finalizarAvaliacaoAluno
+);
+
 router.delete(
     '/avaliacoes/pergunta/:id',
     validarToken,
