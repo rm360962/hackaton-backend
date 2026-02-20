@@ -3,7 +3,7 @@ import { poolConexoes } from "../database/database.js";
 export class AvaliacaoRepository {
 
     buscarAvaliacoes = async (filtros) => {
-        const { id, nome, tipo, ativo } = filtros;
+        const { id, nome, descricao, tipo, ativo } = filtros;
         let sql = `
         SELECT 
             A.ID AS "id",
@@ -49,20 +49,26 @@ export class AvaliacaoRepository {
             valores.push(id);
         } else {
             if (nome) {
-                sql += `AND A.NOME LIKE '%$${indiceParametro++}%' `
-                valores.push(nome);
+                sql += `AND A.NOME LIKE $${indiceParametro++} `
+                valores.push(`%${nome}%`);
             }
 
-            if (tipo) {
+            if(descricao) {
+                sql += `AND A.DESCRICAO LIKE $${indiceParametro++} `;
+                valores.push(`%${descricao}%`);
+            }
+
+            if (tipo != null) {
                 sql += `AND A.TIPO = $${indiceParametro++} `;
                 valores.push(tipo);
             }
-
-            if (ativo) {
-                sql += `AND A.ATIVO = $${indiceParametro++} `;
-                valores.push(ativo);
-            }
         }
+        
+        sql += `AND A.ATIVO = $${indiceParametro++} `;
+        valores.push(true);
+
+        sql += `AND P.ATIVO = $${indiceParametro++} `;
+        valores.push(true);
 
         sql += 'GROUP BY A.ID, A.NOME, A.DESCRICAO ';
         sql += 'ORDER BY A.ID DESC';

@@ -143,4 +143,16 @@ export class AvaliacaoController {
         const { status, resposta } = await this.avaliacaoAlunoService.finalizar(avaliacaoAluno);
         return res.status(status).send(resposta);
     };
+
+    buscarDadosPaginaInicialAluno = async (req, res) => {
+        const id = parseInt(req.params.id, 10);
+        const { status, resposta } = await this.avaliacaoAlunoService.buscarDadosIniciaisAluno(id);
+        return res.status(status).send(resposta);
+    };
+
+    buscarDadosPaginaInicialProfessor = async (req, res) => {
+        const usuario = req.headers.usuarioEvento.login;
+        const { status, resposta } = await this.avaliacaoAlunoService.buscarDadosIniciasProfessor(usuario);
+        return res.status(status).send(resposta);
+    };
 }

@@ -251,7 +251,7 @@ export class UsuarioService {
             });
 
             const dataAtualSegundos = Math.floor(Date.now() / 1000);
-            const umaHoraSegundos = 3600;
+            const umaHoraSegundos = 7200;
 
             const token = jwt.sign({
                 id: usuario.id,

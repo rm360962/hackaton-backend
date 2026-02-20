@@ -12,6 +12,18 @@ router.get(
 );
 
 router.get(
+    '/avaliacoes/aluno/resumo/:id',
+    validarToken,
+    controller.buscarDadosPaginaInicialAluno
+);
+
+router.get(
+    '/avaliacoes/professor/resumo',
+    validarToken,
+    controller.buscarDadosPaginaInicialProfessor
+);
+
+router.get(
     '/avaliacoes/aluno/:id',
      validarToken,
     controller.buscarAvalicaoAlunoPorId
@@ -33,6 +45,12 @@ router.post(
     '/avaliacoes/aluno/enviar-resposta',
     validarToken,
     controller.finalizarAvaliacaoAluno
+);
+
+router.delete(
+    '/avaliacoes/aluno/:id',
+    validarToken,
+    controller.removerAvaliacaoAluno
 );
 
 router.delete(

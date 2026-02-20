@@ -145,7 +145,7 @@ export class AvaliacaoAlunoService {
     remover = async (id, usuario) => {
         try {
             const { possuiResultado: encontrouRegistro } = await this.avaliacaoAlunoRepository.buscarAvaliacoesAluno({
-                id: avaliacaoUsuario.id,
+                id: id,
                 ativo: true
             });
 
@@ -245,4 +245,40 @@ export class AvaliacaoAlunoService {
             mensagem: 'Avaliação finalizada com sucesso'
         }
     };
+
+    buscarDadosIniciaisAluno = async(usuarioId) => {
+        try {
+            const { dados: dadosPaginaInicial } = await this.avaliacaoAlunoRepository.buscarDadosVisaoInicialAluno(usuarioId);
+
+            return {
+                status: 200,
+                resposta: dadosPaginaInicial
+            };
+        } catch (erro) {
+            console.log('[AVALIACAO ALUNO SERVICE] Erro durante busca da visao inicial aluno', erro);
+
+            return {
+                status: 500,
+                mensagem: 'Erro ao carregar os dados da página inicial',
+            };
+        }
+    };
+
+    buscarDadosIniciasProfessor = async (usuarioInclusao) => {
+         try {
+            const { dados: dadosPaginaInicial } = await this.avaliacaoAlunoRepository.buscarDadosIniciaisProfessor(usuarioInclusao);
+
+            return {
+                status: 200,
+                resposta: dadosPaginaInicial
+            };
+        } catch (erro) {
+            console.log('[AVALIACAO ALUNO SERVICE] Erro durante busca da visao inicial professor', erro);
+
+            return {
+                status: 500,
+                mensagem: 'Erro ao carregar os dados da página inicial',
+            };
+        }
+    }
 }

@@ -10,6 +10,7 @@ export class AvaliacaoAlunoRepository {
                 AA.CONTEUDOS_ID                                             AS "conteudosId",
                 AA.RESPOSTAS                                                AS "respostas",
                 AA.NOTA                                                     AS "nota",
+                AA.ATIVO                                                    AS "ativo",
                 json_build_object(
                     'id', AA.SITUACAO,
                     'nome', 
@@ -38,25 +39,28 @@ export class AvaliacaoAlunoRepository {
         const parametros = [];
         let indiceParametro = 1;
 
-        if(filtros.id) {
+        if (filtros.id) {
             sql += `AND AA.ID = $${indiceParametro++} `;
             parametros.push(filtros.id);
         } else {
-            if(filtros.avaliacaoId) {
+            if (filtros.avaliacaoId) {
                 sql += `AND A.ID = $${indiceParametro++} `;
                 parametros.push(filtros.avaliacaoId);
             }
 
-            if(filtros.usuarioId) {
-                sql += `AND U.ID = $${indiceParametro++}`;
+            if (filtros.usuarioId) {
+                sql += `AND U.ID = $${indiceParametro++} `;
                 parametros.push(filtros.usuarioId);
             }
 
-            if(filtros.situacaoId) {
-                sql += `AND AA.SITUACAO = $${indiceParametro++}`;
+            if (filtros.situacaoId != null) {
+                sql += `AND AA.SITUACAO = $${indiceParametro++} `;
                 parametros.push(filtros.situacaoId);
             }
         }
+
+        sql += `AND AA.ATIVO = $${indiceParametro++}`;
+        parametros.push(true);
 
         const { rows: resultado } = await poolConexoes.query(sql, parametros);
 
@@ -64,6 +68,100 @@ export class AvaliacaoAlunoRepository {
             possuiResultado: resultado.length > 0,
             dados: resultado,
         };
+    };
+
+    buscarDadosVisaoInicialAluno = async (usuarioId) => {
+        const sql = `
+        WITH pendentes AS (
+            SELECT 
+            aa.id,
+            a.nome,
+	        TO_CHAR(DATA_LIMITE, 'DD/MM/YYYY') as "dataLimite",
+	        CASE aa.situacao
+                WHEN 0 THEN 'Pendente'
+                WHEN 1 THEN 'Em execução'
+                WHEN 2 THEN 'Enviado para correção'
+                WHEN 3 THEN 'Avaliado'
+                WHEN 4 THEN 'Não respondido'
+                WHEN 5 THEN 'Removido'
+                WHEN 6 THEN 'Aplicação em sala de aula'
+            END as situacao,
+            aa.nota
+            FROM avaliacao_aluno aa
+            inner join avaliacao a on (aa.avaliacao_id  = a.id)
+            WHERE situacao = 0 AND USUARIO_ID = $1 
+            ORDER BY data_limite ASC LIMIT 3
+        ),
+        em_avaliacao AS (
+            SELECT 
+            aa.id,
+            a.nome,
+	        TO_CHAR(DATA_EXECUCAO, 'DD/MM/YYYY') as "dataExecucao",
+	        CASE aa.situacao
+                WHEN 0 THEN 'Pendente'
+                WHEN 1 THEN 'Em execução'
+                WHEN 2 THEN 'Enviado para correção'
+                WHEN 3 THEN 'Avaliado'
+                WHEN 4 THEN 'Não respondido'
+                WHEN 5 THEN 'Removido'
+                WHEN 6 THEN 'Aplicação em sala de aula'
+            END as situacao,
+            aa.nota
+            FROM avaliacao_aluno aa
+            inner join avaliacao a on (aa.avaliacao_id  = a.id)
+            WHERE situacao = 2 AND USUARIO_ID = $1 
+            ORDER BY data_limite ASC LIMIT 3
+        ),
+        avaliadas AS (
+            SELECT 
+            aa.id,
+            a.nome,
+	        TO_CHAR(DATA_EXECUCAO, 'DD/MM/YYYY') as "dataExecucao",
+	        CASE aa.situacao
+                WHEN 0 THEN 'Pendente'
+                WHEN 1 THEN 'Em execução'
+                WHEN 2 THEN 'Enviado para correção'
+                WHEN 3 THEN 'Avaliado'
+                WHEN 4 THEN 'Não respondido'
+                WHEN 5 THEN 'Removido'
+                WHEN 6 THEN 'Aplicação em sala de aula'
+            END as situacao,
+            aa.nota
+            FROM avaliacao_aluno aa
+            inner join avaliacao a on (aa.avaliacao_id  = a.id)
+            WHERE situacao = 3 AND USUARIO_ID = $1 
+            ORDER BY data_limite ASC LIMIT 3
+        )   
+    SELECT 
+        (SELECT COALESCE(json_agg(p), '[]'::json) FROM pendentes p) AS "pendentes",
+        (SELECT COALESCE(json_agg(e), '[]'::json) FROM em_avaliacao e) AS "emAvaliacao",
+        (SELECT COALESCE(json_agg(a), '[]'::json) FROM avaliadas a) AS "avaliadas"
+        `;
+        
+        const { rows: resultado } = await poolConexoes.query(sql, [usuarioId]);
+
+        return {
+            possuiResultado: resultado.length > 0,
+            dados: resultado.length > 0 ? resultado[0] : {},
+        };
+    };
+
+    buscarDadosIniciaisProfessor = async (usuarioInclusao) => {
+        const sql = `
+        SELECT 
+            (SELECT count(id) FROM avaliacao_aluno WHERE 1=1 AND ativo = true AND situacao = 0 and usuario_inclusao = $1) AS "qtdPendentes",
+            (SELECT count(id) FROM avaliacao_aluno WHERE 1=1 AND ativo = true AND situacao = 1 and usuario_inclusao = $1) AS "qtdEmExecucao",
+            (SELECT count(id) FROM avaliacao_aluno WHERE 1=1 AND ativo = true AND situacao = 2 and usuario_inclusao = $1) AS "qtdEnviadoCorrecao",
+            (SELECT count(id) FROM avaliacao_aluno WHERE 1=1 AND ativo = true AND situacao = 4 and usuario_inclusao = $1) AS "qtdNaoRespondido"
+        `;
+
+        const { rows: resultado } = await poolConexoes.query(sql, [usuarioInclusao]);
+
+        return {
+            possuiResultado: resultado.length > 0,
+            dados: resultado.length > 0 ? resultado[0] : {},
+        };
+        
     };
 
     cadastrarAvalicaoAluno = async (avaliacaoUsuario) => {
