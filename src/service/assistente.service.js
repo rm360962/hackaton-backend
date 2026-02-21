@@ -115,7 +115,7 @@ export class AssistenteService {
         prompt += `Regras de Saída (JSON): Retorne estritamente um objeto JSON, sem textos explicativos antes ou depois.`;
         prompt += `Estrutura da saída: `;
         prompt += `* titulo: Título do conteúdo. `
-        prompt += `* descriçao: Uma breve descrição sobre o conteúdo com no máximo 255 caracteres. `
+        prompt += `* descricao: Uma breve descrição sobre o conteúdo com no máximo 255 caracteres. `
         prompt += `* texto: Texto em markdown contendo o conteúdo buscado. `
         prompt += `Caso de Erro: Se o assunto for incoerente ou impossível de buscar, retorne apenas: {"mensagem": "Erro"}.`;
         prompt += `Exemplo de Formatação Esperada: ${JSON.stringify(this.exemploConteudo)}`
