@@ -1,6 +1,7 @@
 import express from "express";
 import { validarToken } from "../../middleware/validacao.js";
 import { AvaliacaoController} from "../../controller/avaliacao.controller.js";
+import { validarEdicaoAvaliacao } from './avaliacao.validation.js';
 
 const router = express.Router();
 const controller = new AvaliacaoController();
@@ -74,6 +75,7 @@ router.get(
 router.post(
     '/avaliacoes',
     validarToken,
+    validarEdicaoAvaliacao(),
     controller.cadastrarAvaliacao,
 );
 
