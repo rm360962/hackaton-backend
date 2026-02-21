@@ -96,7 +96,7 @@ export class AvaliacaoRepository {
             $1,
             $2,
             $3,
-            CURRENT_DATE,
+            NOW(),
             $4
         ) RETURNING ID;
         `;
@@ -133,7 +133,7 @@ export class AvaliacaoRepository {
             null, 
             0,
             null, 
-            CURRENT_DATE, 
+            NOW(), 
             $4
         ) RETURNING ID;
         `;
@@ -157,7 +157,7 @@ export class AvaliacaoRepository {
             DESCRICAO = COALESCE($4, DESCRICAO),
             TIPO = COALESCE($5, TIPO),
             ATIVO = COALESCE($6, ATIVO),
-            DATA_ALTERACAO = CURRENT_DATE,
+            DATA_ALTERACAO = NOW(),
             USUARIO_ALTERACAO = $1
         WHERE ID = $2;
         `;
@@ -195,7 +195,7 @@ export class AvaliacaoRepository {
             $4,
             $5,
             $6,
-            CURRENT_DATE, 
+            NOW(), 
             $7
         ) RETURNING ID;
         `;

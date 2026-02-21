@@ -61,7 +61,7 @@ export class AssistenteService {
                 };
             };
 
-            const quantidadePerguntas = qtdDescritiva + qtdMuliplaEscolha;
+            const quantidadePerguntas = Number(qtdDescritiva) + Number(qtdMuliplaEscolha);
             const valor = 10 / quantidadePerguntas;
             const perguntas = respostaGemini.perguntas.map((pergunta) => {
                 let respostaCorreta = null;

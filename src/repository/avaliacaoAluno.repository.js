@@ -42,21 +42,21 @@ export class AvaliacaoAlunoRepository {
         if (filtros.id) {
             sql += `AND AA.ID = $${indiceParametro++} `;
             parametros.push(filtros.id);
-        } else {
-            if (filtros.avaliacaoId) {
-                sql += `AND A.ID = $${indiceParametro++} `;
-                parametros.push(filtros.avaliacaoId);
-            }
+        }
+        
+        if (filtros.avaliacaoId) {
+            sql += `AND A.ID = $${indiceParametro++} `;
+            parametros.push(filtros.avaliacaoId);
+        }
 
-            if (filtros.usuarioId) {
-                sql += `AND U.ID = $${indiceParametro++} `;
-                parametros.push(filtros.usuarioId);
-            }
+        if (filtros.usuarioId) {
+            sql += `AND U.ID = $${indiceParametro++} `;
+            parametros.push(filtros.usuarioId);
+        }
 
-            if (filtros.situacaoId != null) {
-                sql += `AND AA.SITUACAO = $${indiceParametro++} `;
-                parametros.push(filtros.situacaoId);
-            }
+        if (filtros.situacaoId != null) {
+            sql += `AND AA.SITUACAO = $${indiceParametro++} `;
+            parametros.push(filtros.situacaoId);
         }
 
         sql += `AND AA.ATIVO = $${indiceParametro++}`;
@@ -137,7 +137,7 @@ export class AvaliacaoAlunoRepository {
         (SELECT COALESCE(json_agg(e), '[]'::json) FROM em_avaliacao e) AS "emAvaliacao",
         (SELECT COALESCE(json_agg(a), '[]'::json) FROM avaliadas a) AS "avaliadas"
         `;
-        
+
         const { rows: resultado } = await poolConexoes.query(sql, [usuarioId]);
 
         return {
@@ -161,7 +161,7 @@ export class AvaliacaoAlunoRepository {
             possuiResultado: resultado.length > 0,
             dados: resultado.length > 0 ? resultado[0] : {},
         };
-        
+
     };
 
     cadastrarAvalicaoAluno = async (avaliacaoUsuario) => {
@@ -182,7 +182,7 @@ export class AvaliacaoAlunoRepository {
                 $3,
                 TO_DATE($4, 'YYYY-MM-DD'),
                 0,
-                CURRENT_DATE, 
+                NOW(), 
                 $5
             ) RETURNING ID;
             `;
@@ -205,7 +205,7 @@ export class AvaliacaoAlunoRepository {
             SITUACAO = COALESCE($1, SITUACAO),
             NOTA = COALESCE($2, NOTA),
             ATIVO = COALESCE($3, ATIVO),
-            DATA_ALTERACAO = CURRENT_DATE,
+            DATA_ALTERACAO = NOW(),
             ${avaliacaoAluno.dataExecucao ? `DATA_EXECUCAO = NOW(),` : ''}
             USUARIO_ALTERACAO = $4,
             RESPOSTAS = COALESCE($5, RESPOSTAS)

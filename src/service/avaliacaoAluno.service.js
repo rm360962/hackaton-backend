@@ -225,7 +225,7 @@ export class AvaliacaoAlunoService {
             ;
 
         const atualizacao = {
-            id: avaliacao.id,
+            id: avaliacaoAluno.id,
             usuario: avaliacaoAluno.usuarioAlteracao,
             dataExecucao: true,
         };
